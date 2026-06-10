@@ -17,7 +17,7 @@
 
 ### 1.1 Copy the Template (Recommended)
 
-Go to: **https://github.com/aiand-atul/web-app-template/generate**
+Go to: **https://github.com/aiandlabs/web-app-template/generate**
 
 Or click "Use this template" on the repo page, then:
 1. Name your repo (e.g., `my-first-app`)
@@ -236,7 +236,7 @@ Here's a complete example from scratch using the GitHub template:
 
 ```bash
 # 1. Use template (go to GitHub and click "Use this template")
-# Or direct link: https://github.com/aiand-atul/web-app-template/generate
+# Or direct link: https://github.com/aiandlabs/web-app-template/generate
 # Name it: todo-app
 
 # 2. Clone your new repo

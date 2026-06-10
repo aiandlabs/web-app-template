@@ -80,7 +80,7 @@ npm -v
 
 # 3. Test running the template
 cd /tmp  # Use temp directory for test
-git clone https://github.com/aiand-atul/web-app-template.git test-app
+git clone https://github.com/aiandlabs/web-app-template.git test-app
 cd test-app
 npm install
 npm run dev
@@ -99,7 +99,7 @@ Example: `intern-john-todo-app`
 
 The easiest way: Use the **"Use this template"** button:
 
-1. Go to: **https://github.com/aiand-atul/web-app-template/generate**
+1. Go to: **https://github.com/aiandlabs/web-app-template/generate**
 2. Enter app name (e.g., `my-first-app`)
 3. Click **"Create repository from template"**
 4. Clone your new repo:
@@ -339,7 +339,7 @@ Save as `check-environment.sh`, run with `bash check-environment.sh`
 
 ## Resources for Interns
 
-- **Template Repo:** https://github.com/aiand-atul/web-app-template
+- **Template Repo:** https://github.com/aiandlabs/web-app-template
 - **Build.io Docs:** https://docs.build.io
 - **Express.js Docs:** https://expressjs.com
 - **Node.js Docs:** https://nodejs.org/docs

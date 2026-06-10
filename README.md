@@ -38,7 +38,7 @@ Before using this template, make sure you have:
 ### Option 1: Use GitHub Template (Recommended)
 
 Click the green **"Use this template"** button at the top of this page, or visit:
-👉 **[https://github.com/aiand-atul/web-app-template/generate](https://github.com/aiand-atul/web-app-template/generate)**
+👉 **[https://github.com/aiandlabs/web-app-template/generate](https://github.com/aiandlabs/web-app-template/generate)**
 
 Then:
 1. Give your repo a name (e.g., `my-first-app`)
@@ -54,7 +54,7 @@ Then:
 
 ```bash
 # Clone manually instead of using template button
-git clone https://github.com/aiand-atul/web-app-template.git my-new-app
+git clone https://github.com/aiandlabs/web-app-template.git my-new-app
 cd my-new-app
 rm -rf .git
 git init

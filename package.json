@@ -1,16 +1,16 @@
 {
   "name": "web-app-template",
   "version": "1.0.0",
-  "description": "Web app template for Build.io — deploys instantly with zero dependencies, upgrade to Express + MongoDB locally",
-  "main": "src/server.js",
+  "description": "Build.io web app template — zero-dep by default, Express + MongoDB after local npm install",
+  "main": "server.js",
   "scripts": {
-    "start": "node src/server.js",
-    "dev": "node src/server.js"
+    "start": "node server.js",
+    "dev": "node server.js"
   },
   "engines": {
     "node": ">=18.0.0"
   },
+  "keywords": ["express", "mongodb", "build-io", "template"],
   "author": "Your Name",
-  "license": "MIT",
-  "dependencies": {}
+  "license": "MIT"
 }

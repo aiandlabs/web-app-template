@@ -1,180 +1,220 @@
 /**
  * Web App Template for Build.io
- * 
- * This is a production-ready Express.js template for deploying to Build.io.
- * It includes:
- * - Health check endpoint (required by Build.io)
- * - Environment-based configuration
- * - Error handling
- * - Request logging
- * - Graceful shutdown
- * 
- * For interns: This is your starting point. Copy this folder and modify!
+ *
+ * This template comes with MongoDB support built-in.
+ * To enable the database:
+ *   bld addons:create donkey-to-go
+ *   bld ps:restart
  */
 
-const express = require('express');
-const path = require('path');
+const express = require("express");
+const mongoose = require("mongoose");
 
-// Create Express application
-const app = express();
-
-// ============================================
+// ============================================================
 // CONFIGURATION
-// ============================================
-// Build.io sets PORT environment variable automatically
-// Fallback to 3000 for local development
-const PORT = process.env.PORT || 3000;
+// ============================================================
+const PORT   = process.env.PORT || 3000;
+const env    = process.env.NODE_ENV || "development";
+const appName= process.env.APP_NAME || "my-app";
+const mongoUrl = process.env.MONGODB_URL;
 
-// You can add more environment variables here
-const NODE_ENV = process.env.NODE_ENV || 'development';
-const APP_NAME = process.env.APP_NAME || 'web-app-template';
+// ============================================================
+// DATABASE (Mongoose)
+// ============================================================
+let connected = false;
 
-// ============================================
-// MIDDLEWARE
-// ============================================
-// Parse JSON request bodies
+// Define your data model — interns can add more fields here
+const ItemSchema = new mongoose.Schema({
+  name      : { type: String, required: true },
+  completed : { type: Boolean, default: false },
+  createdAt : { type: Date, default: Date.now }
+});
+
+const Item = mongoose.model("Item", ItemSchema);
+
+async function connectDB() {
+  if (!mongoUrl) {
+    console.log("⚠️  No MONGODB_URL — add-on not attached.");
+    console.log("   Run: bld addons:create donkey-to-go");
+    return;
+  }
+  try {
+    await mongoose.connect(mongoUrl);
+    connected = true;
+    console.log("✅  MongoDB connected");
+  } catch (err) {
+    console.error("❌  MongoDB connection failed:", err.message);
+  }
+}
+
+// ============================================================
+// EXPRESS APP
+// ============================================================
+const app = express();
 app.use(express.json());
-
-// Parse URL-encoded request bodies
 app.use(express.urlencoded({ extended: true }));
 
-// Simple request logger (for debugging)
+// Request logger
 app.use((req, res, next) => {
-  const timestamp = new Date().toISOString();
-  console.log(`[${timestamp}] ${req.method} ${req.url}`);
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
   next();
 });
 
-// Serve static files from 'public' folder (if you add one)
-// app.use(express.static(path.join(__dirname, '../public')));
-
-// ============================================
+// ============================================================
 // ROUTES
-// ============================================
+// ============================================================
 
-/**
- * HOME PAGE
- * Main entry point of your application
- */
-app.get('/', (req, res) => {
+// --- Home ----------------------------------------------------
+app.get("/", async (_req, res) => {
+  let count = 0;
+  if (connected) {
+    try { count = await Item.countDocuments(); } catch (_) { /* ignore */ }
+  }
+
   res.json({
-    message: 'Welcome to your web app!',
-    app: APP_NAME,
-    env: NODE_ENV,
-    timestamp: new Date().toISOString(),
-    docs: 'Visit /health for status, /api/info for app info'
+    message: `Welcome to ${appName}!`,
+    environment: env,
+    database: connected ? "connected" : "not configured",
+    itemCount: count,
+    endpoints: {
+      health: "GET /health",
+      items : {
+        list   : "GET    /api/items",
+        create : "POST   /api/items",
+        get    : "GET    /api/items/:id",
+        update : "PUT    /api/items/:id",
+        delete : "DELETE /api/items/:id"
+      }
+    }
   });
 });
 
-/**
- * HEALTH CHECK ENDPOINT (REQUIRED)
- * 
- * Build.io uses this to check if your app is running.
- * Must return HTTP 200 with a JSON response.
- * If this fails, Build.io will restart your app!
- */
-app.get('/health', (req, res) => {
+// --- Health (Build.io requires this) -------------------------
+app.get("/health", async (_req, res) => {
+  let dbStatus = "not configured";
+  if (mongoUrl) {
+    dbStatus = connected && mongoose.connection.readyState === 1
+      ? "healthy"
+      : "unhealthy";
+  }
+
   res.status(200).json({
-    status: 'healthy',
+    status: "healthy",
+    database: dbStatus,
     uptime: process.uptime(),
-    timestamp: new Date().toISOString(),
-    environment: NODE_ENV
-  });
-});
-
-/**
- * APP INFO ENDPOINT
- * Returns information about the running application
- */
-app.get('/api/info', (req, res) => {
-  res.json({
-    name: APP_NAME,
-    version: require('../package.json').version,
-    node_version: process.version,
-    environment: NODE_ENV,
-    platform: process.platform,
-    uptime: process.uptime(),
-    memory_usage: process.memoryUsage(),
     timestamp: new Date().toISOString()
   });
 });
 
-/**
- * EXAMPLE: POST endpoint
- * Shows how to handle incoming data
- */
-app.post('/api/echo', (req, res) => {
-  // req.body contains the parsed JSON data
-  res.json({
-    message: 'Echo response',
-    received: req.body,
-    timestamp: new Date().toISOString()
-  });
+// --- CRUD: List ----------------------------------------------
+app.get("/api/items", async (_req, res, next) => {
+  if (!connected) {
+    return res.status(503).json({ error: "Database not configured" });
+  }
+  try {
+    const items = await Item.find().sort({ createdAt: -1 });
+    res.json({ count: items.length, items });
+  } catch (err) { next(err); }
 });
 
-// ============================================
+// --- CRUD: Create --------------------------------------------
+app.post("/api/items", async (req, res, next) => {
+  if (!connected) {
+    return res.status(503).json({ error: "Database not configured" });
+  }
+  try {
+    const { name } = req.body;
+    if (!name) return res.status(400).json({ error: "name is required" });
+    const item = await Item.create({ name });
+    res.status(201).json({ message: "Created", item });
+  } catch (err) { next(err); }
+});
+
+// --- CRUD: Read ----------------------------------------------
+app.get("/api/items/:id", async (req, res, next) => {
+  if (!connected) {
+    return res.status(503).json({ error: "Database not configured" });
+  }
+  try {
+    const item = await Item.findById(req.params.id);
+    if (!item) return res.status(404).json({ error: "Not found" });
+    res.json({ item });
+  } catch (err) { next(err); }
+});
+
+// --- CRUD: Update --------------------------------------------
+app.put("/api/items/:id", async (req, res, next) => {
+  if (!connected) {
+    return res.status(503).json({ error: "Database not configured" });
+  }
+  try {
+    const { name, completed } = req.body;
+    const item = await Item.findByIdAndUpdate(
+      req.params.id,
+      { name, completed },
+      { new: true, runValidators: true }
+    );
+    if (!item) return res.status(404).json({ error: "Not found" });
+    res.json({ message: "Updated", item });
+  } catch (err) { next(err); }
+});
+
+// --- CRUD: Delete --------------------------------------------
+app.delete("/api/items/:id", async (req, res, next) => {
+  if (!connected) {
+    return res.status(503).json({ error: "Database not configured" });
+  }
+  try {
+    const item = await Item.findByIdAndDelete(req.params.id);
+    if (!item) return res.status(404).json({ error: "Not found" });
+    res.json({ message: "Deleted", item });
+  } catch (err) { next(err); }
+});
+
+// ============================================================
 // ERROR HANDLING
-// ============================================
+// ============================================================
 
-// 404 handler - when no route matches
-app.use((req, res) => {
-  res.status(404).json({
-    error: 'Not Found',
-    message: `Cannot ${req.method} ${req.url}`,
-    timestamp: new Date().toISOString()
-  });
+app.use((_req, res) => {
+  res.status(404).json({ error: "Not found", path: _req.url });
 });
 
-// Global error handler
-app.use((err, req, res, next) => {
-  console.error('Error:', err);
-  
-  // Don't leak error details in production
-  const message = NODE_ENV === 'production' 
-    ? 'Internal Server Error' 
-    : err.message;
-  
+app.use((err, _req, res, _next) => {
+  console.error("Error:", err);
   res.status(err.status || 500).json({
-    error: 'Internal Server Error',
-    message: message,
-    timestamp: new Date().toISOString()
+    error: "Internal server error",
+    message: env === "production" ? "Something went wrong" : err.message
   });
 });
 
-// ============================================
-// SERVER STARTUP
-// ============================================
+// ============================================================
+// START SERVER
+// ============================================================
 
-const server = app.listen(PORT, () => {
-  console.log('='.repeat(50));
-  console.log(` Server: ${APP_NAME}`);
-  console.log(` Port: ${PORT}`);
-  console.log(` Environment: ${NODE_ENV}`);
-  console.log(` URL: http://localhost:${PORT}`);
-  console.log('='.repeat(50));
-});
+async function main() {
+  await connectDB();
 
-// ============================================
-// GRACEFUL SHUTDOWN
-// ============================================
-// Build.io may send SIGTERM when stopping/restarting your app
-// We handle it gracefully to avoid dropping requests
-
-process.on('SIGTERM', () => {
-  console.log('SIGTERM received, shutting down gracefully...');
-  server.close(() => {
-    console.log('Server closed');
-    process.exit(0);
+  const server = app.listen(PORT, () => {
+    console.log("\n" + "=".repeat(50));
+    console.log(` 🚀  ${appName}`);
+    console.log(` 📍  http://localhost:${PORT}`);
+    console.log(` 🔧  ${env}`);
+    if (!connected) console.log(` 💡  Run: bld addons:create donkey-to-go`);
+    console.log("=".repeat(50) + "\n");
   });
-});
 
-process.on('SIGINT', () => {
-  console.log('SIGINT received, shutting down gracefully...');
-  server.close(() => {
-    console.log('Server closed');
-    process.exit(0);
+  // Graceful shutdown
+  process.on("SIGTERM", () => {
+    console.log("\n⚠️  SIGTERM received — closing...");
+    server.close(async () => {
+      if (connected) await mongoose.connection.close();
+      console.log("👋  Bye!");
+      process.exit(0);
+    });
   });
-});
+}
 
-// Export for testing (if needed)
-module.exports = app;
+main().catch((err) => {
+  console.error("Failed to start:", err);
+  process.exit(1);
+});

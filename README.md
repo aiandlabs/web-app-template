@@ -2,6 +2,37 @@
 
 A production-ready Express.js template for deploying web applications to [Build.io](https://build.io).
 
+## Prerequisites (Before You Start!)
+
+Before using this template, make sure you have:
+
+1. **Node.js 18+** and **npm** installed
+   ```bash
+   node -v  # Should show v18.x.x or higher
+   npm -v   # Should work
+   ```
+
+2. **Git** installed
+   ```bash
+   git --version
+   ```
+
+3. **Build.io account** (ask your team lead to invite you)
+
+4. **`bld` CLI** installed (the Build.io command-line tool)
+   ```bash
+   bld --version
+   ```
+   If not found, download from [Build.io](https://build.io)
+
+5. **GitHub access** (if your team uses GitHub)
+   - Have a GitHub account
+   - SSH key set up: `ssh -T git@github.com` should work
+
+> **⚠️ Can't install these yourself?** Ask your team lead — they should set these up before you start.
+
+---
+
 ## Quick Start (for Interns)
 
 ### 1. Copy This Template

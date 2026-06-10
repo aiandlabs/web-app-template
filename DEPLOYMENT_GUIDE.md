@@ -7,6 +7,10 @@
 2. You have the `bld` CLI installed
 3. You have Git installed
 
+> **Getting `bld`:** If you don't have the `bld` CLI installed, download it from [Build.io](https://build.io) or ask your team lead for the installer.
+
+> **Getting an account:** Ask your team lead to invite you to the team workspace on Build.io.
+
 ---
 
 ## Phase 1: Local Setup

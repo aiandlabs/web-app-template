@@ -53,7 +53,48 @@ bld ps:restart --app web-app-template
 ```
 After restarting, the dyno picks up the new image and the app starts working.
 
-### 3. Two Sequential Pushes Don't Guarantee Two Releases
+### 3. Heroku Buildpack Caches Empty `node_modules`
+
+The `heroku/nodejs` buildpack aggressively caches the `node_modules` layer.  If your **first build** had no dependencies (zero-dep mode), the cache is empty.  When you later add deps to `package.json`, the buildpack **skips `npm install`** because it thinks the cache is still valid.
+
+**Build 15 and 16:**
+```
+heroku/nodejs   5.3.4
+procfile        4.2.1
+- web: node server.js
+- Done (finished in < 0.1s)   ← SKIPPED npm install
+Saving registry...
+```
+Build finished in 0.1s — no compilation happened. It used a stale cached layer.
+
+**Solution — Invalidate the cache by providing a REAL `package-lock.json`:**
+
+```bash
+# On a machine with Node.js (or download it):
+mkdir -p /tmp/node
+curl -sL "https://nodejs.org/dist/v18.20.5/node-v18.20.5-linux-x64.tar.xz" \
+  | tar xJf - -C /tmp/node --strip-components=1
+export PATH="/tmp/node/bin:$PATH"
+
+# Now generate a real lockfile
+npm install express mongoose
+
+# Commit it
+git add package.json package-lock.json
+git commit -m "add real package-lock with deps"
+git push build main
+```
+
+With a **genuine** `package-lock.json`, the buildpack sees a new cache key and runs `npm ci` properly.
+
+**Result — Build 17:**
+```
+npm install ran successfully
+node_modules installed
+🚀  my-app (Express) on port 8080
+```
+
+### 4. Two Sequential Pushes Don't Guarantee Two Releases
 
 We pushed 3 times in a row. Build.io queued builds 7→11, but even after the builds saved:
 ```
@@ -67,7 +108,7 @@ We pushed 3 times in a row. Build.io queued builds 7→11, but even after the bu
 
 Or check `bld logs --app web-app-template | tail -10` — if there's a `(zero-dep mode)` in the log, restart succeeded.
 
-### 4. How to Verify the Live App
+### 5. How to Verify the Live App
 
 ```bash
 # Check if the build was saved

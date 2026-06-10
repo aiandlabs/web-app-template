@@ -95,28 +95,47 @@ rm -rf test-app
 **Choose an app name first:** Must be unique, use hyphens, no spaces.
 Example: `intern-john-todo-app`
 
+### Recommended: Use GitHub Template
+
+The easiest way: Use the **"Use this template"** button:
+
+1. Go to: **https://github.com/aiand-atul/web-app-template/generate**
+2. Enter app name (e.g., `my-first-app`)
+3. Click **"Create repository from template"**
+4. Clone your new repo:
+   ```bash
+   git clone https://github.com/YOUR_USERNAME/my-first-app.git
+   cd my-first-app
+   ```
+
+### Alternative: Manual Copy
 ```bash
-# 1. Copy template
-cp -r /path/to/web-app-template my-first-app
-# Or: git clone https://github.com/aiand-atul/web-app-template.git my-first-app
+cp -r web-app-template my-first-app
 cd my-first-app
-
-# 2. Customize package.json
-# - change: name
-# - change: description
-# - change: author
-
-# 3. Git init
 git init
-git add .
-git commit -m "Initial commit from template"
+```
 
-# 4. Create Build.io app
+### Deploy!
+```bash
+# 1. Edit package.json (change name, description, author)
+# ...
+
+# 2. Install & test
+npm install
+npm run dev
+# (In browser: http://localhost:3000)
+# (Press Ctrl+C to stop)
+
+# 3. Create Build.io app
 bld apps:create my-first-app
 
-# 5. Add remotes
+# 4. Add remotes
+# (If using GitHub template, origin already exists)
 git remote add build https://git.build.io/my-first-app.git
-# (Optional: git remote add origin https://github.com/your-org/my-first-app.git)
+
+# 5. Commit any changes
+git add .
+git commit -m "Customized template"
 
 # 6. Deploy!
 git push build main

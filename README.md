@@ -35,16 +35,32 @@ Before using this template, make sure you have:
 
 ## Quick Start (for Interns)
 
-### 1. Copy This Template
+### Option 1: Use GitHub Template (Recommended)
+
+Click the green **"Use this template"** button at the top of this page, or visit:
+👉 **[https://github.com/aiand-atul/web-app-template/generate](https://github.com/aiand-atul/web-app-template/generate)**
+
+Then:
+1. Give your repo a name (e.g., `my-first-app`)
+2. Choose public or private
+3. Click **"Create repository from template"**
+4. Clone it locally:
+   ```bash
+   git clone https://github.com/YOUR_USERNAME/my-first-app.git
+   cd my-first-app
+   ```
+
+### Option 2: Manual Copy
 
 ```bash
-# Clone or copy this template
-cp -r web-app-template/ my-new-app
+# Clone manually instead of using template button
+git clone https://github.com/aiand-atul/web-app-template.git my-new-app
 cd my-new-app
-
-# Update package.json with your app name
-# Edit: name, description, author fields
+rm -rf .git
+git init
 ```
+
+> ⚠️ **Don't fork!** Forks are for contributing back to this repo. Use **"Use this template"** to create your own independent copy.
 
 ### 2. Install Dependencies
 

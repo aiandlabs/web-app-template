@@ -15,7 +15,21 @@
 
 ## Phase 1: Local Setup
 
-### 1.1 Copy the Template
+### 1.1 Copy the Template (Recommended)
+
+Go to: **https://github.com/aiand-atul/web-app-template/generate**
+
+Or click "Use this template" on the repo page, then:
+1. Name your repo (e.g., `my-first-app`)
+2. Choose public/private
+3. Click **"Create repository from template"**
+4. Clone it:
+   ```bash
+   git clone https://github.com/YOUR_USERNAME/my-first-app.git
+   cd my-first-app
+   ```
+
+### 1.1 Alternative: Manual Copy
 ```bash
 cp -r web-app-template my-first-app
 cd my-first-app
@@ -218,35 +232,34 @@ app.get('/health', (req, res) => {
 
 ## Example Walkthrough
 
-Here's a complete example from scratch:
+Here's a complete example from scratch using the GitHub template:
 
 ```bash
-# 1. Copy template
-cp -r web-app-template todo-app
+# 1. Use template (go to GitHub and click "Use this template")
+# Or direct link: https://github.com/aiand-atul/web-app-template/generate
+# Name it: todo-app
+
+# 2. Clone your new repo
+git clone https://github.com/YOUR_USERNAME/todo-app.git
 cd todo-app
 
-# 2. Edit package.json (change name to todo-app)
+# 3. Edit package.json (change name to todo-app)
 # ...
 
-# 3. Install
-cd web-app-template
+# 4. Install & test
 npm install
-
-# 4. Test
 npm run dev
 # (Works? Great! Press Ctrl+C)
 
-# 5. Git
-cd ..
-git init
-git add .
-git commit -m "Initial commit"
-
-# 6. Create on Build.io
+# 5. Create on Build.io
 bld apps:create todo-app
 
-# 7. Add remote
+# 6. Add remotes (if not already set up)
 git remote add build https://git.build.io/todo-app.git
+# (Optional: git remote add origin https://github.com/YOUR_USERNAME/todo-app.git)
+
+# 7. Commit any edits
+# (Template already has an initial commit)
 
 # 8. Deploy!
 git push build main

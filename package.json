@@ -1,7 +1,7 @@
 {
   "name": "web-app-template",
   "version": "1.0.0",
-  "description": "Template Express web app for Build.io deployment",
+  "description": "Web app template for Build.io — deploys instantly with zero dependencies, upgrade to Express + MongoDB locally",
   "main": "src/server.js",
   "scripts": {
     "start": "node src/server.js",
@@ -10,16 +10,7 @@
   "engines": {
     "node": ">=18.0.0"
   },
-  "keywords": [
-    "express",
-    "template",
-    "build-io",
-    "heroku-like"
-  ],
   "author": "Your Name",
   "license": "MIT",
-  "dependencies": {
-    "express": "^4.18.2",
-    "mongoose": "^8.0.0"
-  }
+  "dependencies": {}
 }

@@ -82,14 +82,37 @@ if (express && mongoose) {
     res.json({ status: "healthy", database: dbStatus, uptime: process.uptime() });
   });
 
-  // CRUD (guard when DB not connected)
-  const guard = (_req, res) => res.status(503).json({ error: "Database not configured" });
+  // CRUD (check `connected` at request time, not at definition time)
+  const dbGuard = (_req, res) => res.status(503).json({ error: "Database not configured. Run: bld addons:create donkey-to-go --app my-app" });
 
-  app.get("/api/items",  connected ? async (_req, res) => res.json({ count: await Item.countDocuments(), items: await Item.find().sort({ createdAt: -1 }) }) : guard);
-  app.post("/api/items", connected ? async (req, res) => { const item = await Item.create({ name: req.body.name }); res.status(201).json(item); } : guard);
-  app.get("/api/items/:id", connected ? async (req, res) => { const item = await Item.findById(req.params.id); item ? res.json(item) : res.status(404).json({ error: "Not found" }); } : guard);
-  app.put("/api/items/:id", connected ? async (req, res) => { const item = await Item.findByIdAndUpdate(req.params.id, req.body, { new: true }); item ? res.json(item) : res.status(404).json({ error: "Not found" }); } : guard);
-  app.delete("/api/items/:id", connected ? async (req, res) => { await Item.findByIdAndDelete(req.params.id); res.json({ deleted: true }); } : guard);
+  app.get("/api/items", async (_req, res) => {
+    if (!connected) return dbGuard(_req, res);
+    res.json({ count: await Item.countDocuments(), items: await Item.find().sort({ createdAt: -1 }) });
+  });
+
+  app.post("/api/items", async (req, res) => {
+    if (!connected) return dbGuard(req, res);
+    if (!req.body?.name) return res.status(400).json({ error: "name is required" });
+    res.status(201).json(await Item.create({ name: req.body.name }));
+  });
+
+  app.get("/api/items/:id", async (req, res) => {
+    if (!connected) return dbGuard(req, res);
+    const item = await Item.findById(req.params.id);
+    item ? res.json(item) : res.status(404).json({ error: "Not found" });
+  });
+
+  app.put("/api/items/:id", async (req, res) => {
+    if (!connected) return dbGuard(req, res);
+    const item = await Item.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    item ? res.json(item) : res.status(404).json({ error: "Not found" });
+  });
+
+  app.delete("/api/items/:id", async (req, res) => {
+    if (!connected) return dbGuard(req, res);
+    await Item.findByIdAndDelete(req.params.id);
+    res.json({ deleted: true });
+  });
 
   app.use((_req, res) => res.status(404).json({ error: "Not found" }));
 

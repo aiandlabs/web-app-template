@@ -1,47 +1,50 @@
-const http = require('http');
+/**
+ * Web App Template for Build.io
+ *
+ * This is a zero-dependency starter.  It uses only Node's built-in `http`
+ * module so it deploys immediately even before `npm install` is run.
+ *
+ * After cloning locally you can add Express + MongoDB:
+ *   npm install express mongoose
+ *   git add -A && git commit -m "Add express and mongoose"
+ *   git push build main
+ */
+
+const http = require("http");
+const url  = require("url");
+
 const PORT = process.env.PORT || 3000;
 
 const server = http.createServer((req, res) => {
-  if (req.url === '/health') {
-    res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({ status: 'ok', timestamp: new Date().toISOString() }));
+  const parsed = url.parse(req.url, true);
+
+  res.setHeader("Content-Type", "application/json");
+
+  if (parsed.pathname === "/health") {
+    res.writeHead(200);
+    res.end(JSON.stringify({
+      status: "healthy",
+      uptime: process.uptime(),
+      timestamp: new Date().toISOString()
+    }));
     return;
   }
 
-  res.writeHead(200, { 'Content-Type': 'text/html' });
-  res.end(`<!DOCTYPE html>
-<html>
-<head>
-  <title>My Web App</title>
-  <style>
-    body {
-      font-family: system-ui, -apple-system, sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      text-align: center;
-    }
-    .container {
-      padding: 2rem;
-      border-radius: 1rem;
-      background: rgba(255,255,255,0.1);
-      backdrop-filter: blur(10px);
-    }
-    h1 { font-size: 3rem; margin-bottom: 0.5rem; }
-    p { font-size: 1.25rem; opacity: 0.9; }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <h1>Hello from Build.io!</h1>
-    <p>This web app is running on the Build platform.</p>
-  </div>
-</body>
-</html>`);
+  res.writeHead(200);
+  res.end(JSON.stringify({
+    message: "Welcome to your web app!",
+    mode: "zero-dependency",
+    note: "Install express + mongoose locally to upgrade to full CRUD mode.",
+    endpoints: {
+      health: "GET /health"
+    },
+    nextSteps: [
+      "1. npm install express mongoose",
+      "2. Replace server.js with your Express app",
+      "3. git add -A && git commit -m 'Add express'",
+      "4. git push build main"
+    ]
+  }, null, 2));
 });
 
 server.listen(PORT, () => {

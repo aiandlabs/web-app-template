@@ -253,22 +253,73 @@ app.post('/api/users', (req, res, next) => {
 
 ## Adding a Database
 
-### MongoDB (via Addon)
+Build.io provides managed databases and services. All add-ons set environment variables automatically—no manual configuration needed!
+
+### Quick Start
+
 ```bash
-bld addons:create mongodb
-# This sets MONGODB_URL automatically
+# Choose your database and create the add-on:
+bld addons:create donkey-to-go    # MongoDB
+bld addons:create schema-to-go    # PostgreSQL
+bld addons:create ave-to-go       # MariaDB (MySQL-compatible)
+bld addons:create cache-to-go     # Redis cache
+
+# Then restart your app to pick up new env vars:
+bld ps:restart
 ```
 
-```javascript
-// In your app
+### MongoDB (donkey-to-go)
+```bash
+# 1. Create add-on
+bld addons:create donkey-to-go
+
+# 2. Install driver
+npm install mongoose
+
+# 3. Use in code
 const mongoose = require('mongoose');
 mongoose.connect(process.env.MONGODB_URL);
 ```
 
-### PostgreSQL (via Addon)
+### PostgreSQL (schema-to-go)
 ```bash
-bld addons:create postgresql
-# This sets DATABASE_URL automatically
+# 1. Create add-on
+bld addons:create schema-to-go
+
+# 2. Install driver
+npm install pg
+
+# 3. Use in code
+const { Pool } = require('pg');
+const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+```
+
+### All Available Add-ons
+
+| Add-on | Service | Environment Variable | Driver |
+|--------|---------|----------------------|--------|
+| `donkey-to-go` | MongoDB | `MONGODB_URL` | `mongoose` |
+| `schema-to-go` | PostgreSQL | `DATABASE_URL` | `pg` |
+| `ave-to-go` | MariaDB (MySQL) | `DATABASE_URL` | `mysql2` |
+| `cache-to-go` | Redis Cache | `REDIS_URL` | `redis` |
+| `mailertogo` | Email Service | `MAILERTOGO_URL` | `nodemailer` |
+| `sftptogo` | SFTP Storage | `SFTPTOGO_URL` | `ssh2-sftp-client` |
+| `crontogo` | Job Scheduler | — | — |
+| `infer-to-go` | AI Inference | `INFER_URL` | `openai` |
+
+### Database Examples
+
+Ready-to-use examples are in the `examples/` folder:
+- `examples/mongodb-example.js` - Full CRUD with MongoDB & Mongoose
+- `examples/postgresql-example.js` - Full CRUD with PostgreSQL
+
+```bash
+# To use an example:
+cp examples/mongodb-example.js src/server.js
+npm install mongoose
+bld addons:create donkey-to-go
+git add -A && git commit -m "Add MongoDB support"
+git push build main
 ```
 
 ## Troubleshooting

@@ -1,7 +1,7 @@
 {
   "name": "web-app-template",
   "version": "1.0.0",
-  "description": "Build.io web app template — zero-dep by default, Express + MongoDB after local npm install",
+  "description": "Build.io web app template with Express + MongoDB",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
@@ -10,7 +10,10 @@
   "engines": {
     "node": ">=18.0.0"
   },
-  "keywords": ["express", "mongodb", "build-io", "template"],
   "author": "Your Name",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "mongoose": "^8.0.0"
+  }
 }
